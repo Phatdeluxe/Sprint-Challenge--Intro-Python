@@ -14,13 +14,47 @@
 #
 # Note that the first line of the CSV is header that describes the fields--this
 # should not be loaded into a City object.
+import csv
+
+# city,state_name,county_name,lat,lng,population,density,timezone,zips
+
+# This in my opinion a better version than what is expected in the test_cityreader.py file
+# class City():
+#   def __init__(self, param):
+#     self.city = param[0]
+#     self.state_name = param[1]
+#     self.country_name = param[2]
+#     self.lat = param[3]
+#     self.lng = param[4]
+#     self.population = param[5]
+#     self.density = param[6]
+#     self.timezone = param[7]
+#     self.zips = param[8]
+
+#   def __str__(self):
+#     return f'{self.city}, {self.lat}, {self.lng}'
+
+# Made to fit the test file. Defs not super proud of this, the above is better in my opinion.
+class City():
+  def __init__(self, name, lat, lon):
+    self.name = name
+    self.lat = float(lat)
+    self.lon = float(lon)
+
+  def __str__(self):
+    return f'{self.name}, {self.lat},{self.lon}'
+
 cities = []
 
 def cityreader(cities=[]):
   # TODO Implement the functionality to read from the 'cities.csv' file
   # For each city record, create a new City instance and add it to the 
   # `cities` list
-    
+    with open('./cities.csv', newline='') as csvfile:
+      city_reader = csv.reader(csvfile)
+      next(city_reader)
+      for row in city_reader:
+        cities.append(City(name=row[0], lat=row[3], lon=row[4]))
     return cities
 
 cityreader(cities)
@@ -41,6 +75,7 @@ for c in cities:
 # Be aware that the user could specify either a lower-left/upper-right pair of
 # coordinates, or an upper-left/lower-right pair of coordinates. Hint: normalize
 # the input data so that it's always one or the other, then search for cities.
+#
 # In the example below, inputting 32, -120 first and then 45, -100 should not
 # change the results of what the `cityreader_stretch` function returns.
 #
@@ -60,6 +95,11 @@ for c in cities:
 
 # TODO Get latitude and longitude values from the user
 
+lat1 = input('Input first latitude:')
+lon1 = input('Input first longitude:')
+lat2 = input('Input second latitude:')
+lon2 = input('Inut second longitude:')
+
 def cityreader_stretch(lat1, lon1, lat2, lon2, cities=[]):
   # within will hold the cities that fall within the specified region
   within = []
@@ -67,5 +107,40 @@ def cityreader_stretch(lat1, lon1, lat2, lon2, cities=[]):
   # TODO Ensure that the lat and lon valuse are all floats
   # Go through each city and check to see if it falls within 
   # the specified coordinates.
+  lat1 = float(lat1)
+  lon1 = float(lon1)
+  lat2 = float(lat2)
+  lon2 = float(lon2)
+
+  for city in cities:
+
+    # If first lon value is right second
+    if lon1 > lon2:
+      # If first lat value is above the second
+      if lat1 > lat2:
+        # 1 is upper right corner
+        # 2 is lower left
+
+        if lat1 >= city.lat >= lat2 and lon1 >= city.lon >= lon2:
+          within.append(city)
+
+      # If the first is below the second
+      else:
+        if lat2 >= city.lat >= lat1 and lon1 >= city.lon >= lon2:
+          within.append(city)
+
+    # If the first is left of the second
+    else:
+      # If the first is above the second
+      if lat1 > lat2:
+        if lat1 >= city.lat >= lat2 and lon2 >= city.lon >= lon1:
+          within.append(city)
+      # If the first is below the second
+      else:
+        if lat2 >= city.lat >= lat1 and lon2 >= city.lon >= lon1:
+          within.append(city)
 
   return within
+
+for city in cityreader_stretch(lat1, lon1, lat2, lon2, cities):
+  print(city)
